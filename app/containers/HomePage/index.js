@@ -1,129 +1,88 @@
-/*
+/**
+ *
  * HomePage
  *
- * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import H2 from 'components/H2';
-import ReposList from 'components/ReposList';
-import AtPrefix from './AtPrefix';
-import CenteredSection from './CenteredSection';
-import Form from './Form';
-import Input from './Input';
-import Section from './Section';
-import messages from './messages';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
+import injectSaga from 'utils/injectSaga';
+import injectReducer from 'utils/injectReducer';
+import makeSelectHomePage, { loading } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
+import AddUser from '../../components/AddUser';
+import {userDetails, title, userList, loaderEnable} from './selectors';
+import { onChangeHandler, saveUser, fetchUserDetails, deleteUser, enableLoading } from './actions';
 
-const key = 'home';
-
-export function HomePage({
-  username,
-  loading,
-  error,
-  repos,
-  onSubmitForm,
-  onChangeUsername,
-}) {
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
-
-  useEffect(() => {
-    // When initial state username is not null, submit the form to load repos
-    if (username && username.trim().length > 0) onSubmitForm();
-  }, []);
-
-  const reposListProps = {
-    loading,
-    error,
-    repos,
-  };
-
-  return (
-    <article>
-      <Helmet>
-        <title>Home Page</title>
-        <meta
-          name="description"
-          content="A React.js Boilerplate application homepage"
-        />
-      </Helmet>
-      <div>
-        <CenteredSection>
-          <H2>
-            <FormattedMessage {...messages.startProjectHeader} />
-          </H2>
-          <p>
-            <FormattedMessage {...messages.startProjectMessage} />
-          </p>
-        </CenteredSection>
-        <Section>
-          <H2>
-            <FormattedMessage {...messages.trymeHeader} />
-          </H2>
-          <Form onSubmit={onSubmitForm}>
-            <label htmlFor="username">
-              <FormattedMessage {...messages.trymeMessage} />
-              <AtPrefix>
-                <FormattedMessage {...messages.trymeAtPrefix} />
-              </AtPrefix>
-              <Input
-                id="username"
-                type="text"
-                placeholder="mxstbr"
-                value={username}
-                onChange={onChangeUsername}
-              />
-            </label>
-          </Form>
-          <ReposList {...reposListProps} />
-        </Section>
-      </div>
-    </article>
-  );
+export class HomePage extends React.Component{
+	constructor(props){
+		super(props);
+		this.state={}
+	}
+	componentDidMount(){
+		this.props.fetchUserDetails()
+	}
+	onChangeHandler = (event, fieldName) =>{
+		if(fieldName === 'phone'){
+			const x = event.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+			event.target.value = !x[2] ? x[1] : `(${x[1]}) ${x[2]}${x[3] ? `-${x[3]}` : ''}`;
+		}
+		this.props.onChangeHandler(event.target.value, fieldName)
+	}
+	keyPressHandler=(e) =>{
+		if(e.which === 13) this.saveUser()
+	}
+	saveUser = async() =>{
+		await this.props.enableLoading(true)
+		await this.props.saveUser()
+	}
+	deleteUser = (id) =>{
+		this.props.deleteUser(id)
+	}
+	render(){
+		return(
+			<div>
+				<h1>{this.props.title}</h1>
+				<input type="text" value={this.props.userDetails.fname} onKeyPress={(e) => this.keyPressHandler(e)} onChange={(e) =>this.onChangeHandler(e, 'fname')} placeholder="First Name"></input>
+				<input type="text" value={this.props.userDetails.lname} onKeyPress={(e) => this.keyPressHandler(e)} onChange={(e) =>this.onChangeHandler(e, 'lname')} placeholder="Last Name"></input>
+				<input type="text" value={this.props.userDetails.email} onKeyPress={(e) => this.keyPressHandler(e)} onChange={(e) =>this.onChangeHandler(e, 'email')} placeholder="Email"></input>
+				<input type="text" value={this.props.userDetails.phone} onKeyPress={(e) => this.keyPressHandler(e)} onChange={(e) =>this.onChangeHandler(e, 'phone')} placeholder="Phone"></input>
+				<button onClick={this.saveUser}>{this.props.loaderEnable ? 'Saving...' : 'Save'}</button>
+				<div>
+					{ this.props.userList.map(list =>(
+						<div key={list._id}>FirstName: {list.fname}, LastName: {list.lname}, Email: {list.email}, Phone: {list.phone}, <button onClick={() =>this.deleteUser(list._id)}>Delete</button></div> 
+					))}
+				</div>
+			</div>
+		)
+	}
+  
 }
 
 HomePage.propTypes = {
-  loading: PropTypes.bool,
-  error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
-  onSubmitForm: PropTypes.func,
-  username: PropTypes.string,
-  onChangeUsername: PropTypes.func,
+	onChangeHandler: PropTypes.func
 };
 
 const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
+  homePage: makeSelectHomePage(),
+  userDetails: userDetails(),
+  title: title(),
+  userList: userList(),
+  loaderEnable: loaderEnable(),
 });
 
-export function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
-    onChangeUsername: evt => dispatch(changeUsername(evt.target.value)),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadRepos());
-    },
+	onChangeHandler: (value, fieldName)=> dispatch(onChangeHandler(value, fieldName)),
+	saveUser: ()=> dispatch(saveUser()),
+	fetchUserDetails: () => dispatch(fetchUserDetails()),
+	deleteUser: (id) => dispatch(deleteUser(id)),
+	enableLoading: (value) => dispatch(enableLoading(value))
   };
 }
 
@@ -132,7 +91,7 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-export default compose(
-  withConnect,
-  memo,
-)(HomePage);
+const withReducer = injectReducer({ key: 'homePage', reducer });
+const withSaga = injectSaga({ key: 'homePage', saga });
+
+export default compose(withReducer, withSaga, withConnect)(HomePage);

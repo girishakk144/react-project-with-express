@@ -1,29 +1,55 @@
 /*
- * HomeReducer
  *
- * The reducer takes care of our data. Using actions, we can
- * update our application state. To add a new action,
- * add it to the switch statement in the reducer function
+ * HomePage reducer
  *
  */
-
 import produce from 'immer';
-import { CHANGE_USERNAME } from './constants';
+import { ON_CHANGE_HANDLER, UPDATE_USER_DETAILS, CLEAR_USER_DETAILS, ENABLE_LOADING } from './constants';
 
-// The initial state of the App
 export const initialState = {
-  username: '',
+	userList:[],
+	userDetails:{
+		fname: "",
+		lname: "",
+		email: "",
+		phone: ""
+	},
+	title:"",
+	loaderEnable: false
+
 };
 
 /* eslint-disable default-case, no-param-reassign */
-const homeReducer = (state = initialState, action) =>
-  produce(state, draft => {
+const homePageReducer = (state = initialState, action) =>
+  produce(state, draft  => {
     switch (action.type) {
-      case CHANGE_USERNAME:
-        // Delete prefixed '@' from the github username
-        draft.username = action.username.replace(/@/gi, '');
+	  case UPDATE_USER_DETAILS:{
+		return produce(state, draft =>{
+			draft.userList = action.payload
+		})
+	  }
+      case ON_CHANGE_HANDLER:{
+		return produce(state, draft =>{
+			draft.userDetails[action.fieldName] = action.value;
+		})
+	  }
+	  case CLEAR_USER_DETAILS:{
+		  const emptyObj={
+			fname: "",
+			lname: "",
+			email: "",
+			phone: ""}
+		return produce(state, draft =>{
+			draft.userDetails = emptyObj
+		})
+	  }
+	  case ENABLE_LOADING:{
+		  return produce(state, draft =>{
+			  draft.loaderEnable = action.value
+		  })
+	  }
         break;
     }
   });
 
-export default homeReducer;
+export default homePageReducer;
