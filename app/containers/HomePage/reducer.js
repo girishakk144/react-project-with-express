@@ -4,7 +4,12 @@
  *
  */
 import produce from 'immer';
-import { ON_CHANGE_HANDLER, UPDATE_USER_DETAILS, CLEAR_USER_DETAILS, ENABLE_LOADING } from './constants';
+import { 
+	ON_CHANGE_HANDLER, 
+	UPDATE_USER_DETAILS, 
+	CLEAR_USER_DETAILS, 
+	ENABLE_LOADING
+} from './constants';
 
 export const initialState = {
 	userList:[],
