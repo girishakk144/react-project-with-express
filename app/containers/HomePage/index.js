@@ -34,9 +34,11 @@ export class HomePage extends React.Component{
 		super(props);
 		this.state={}
 	}
+
 	componentDidMount(){
 		this.props.fetchUserDetails()
 	}
+
 	onChangeHandler = (event, fieldName) =>{
 		if(fieldName === 'phone'){
 			const x = event.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
@@ -44,16 +46,20 @@ export class HomePage extends React.Component{
 		}
 		this.props.onChangeHandler(event.target.value, fieldName)
 	}
+
 	keyPressHandler=(e) =>{
 		if(e.which === 13) this.saveUser()
 	}
+
 	saveUser = async() =>{
 		await this.props.enableLoading(true)
 		await this.props.saveUser()
 	}
+
 	deleteUser = (id) =>{
 		this.props.deleteUser(id)
 	}
+	
 	render(){
 		return(
 			<div>
