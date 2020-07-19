@@ -14,7 +14,7 @@ export const initialState = {
 		email: "",
 		phone: ""
 	},
-	title:"",
+	title:"Welcome to my dashboard",
 	loaderEnable: false
 
 };
