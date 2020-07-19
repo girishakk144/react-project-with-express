@@ -52,8 +52,8 @@ export class HomePage extends React.Component{
 	}
 
 	saveUser = async() =>{
-		await this.props.enableLoading(true)
-		await this.props.saveUser()
+		await this.props.enableLoading(true);
+		await this.props.saveUser();
 	}
 
 	deleteUser = (id) =>{
