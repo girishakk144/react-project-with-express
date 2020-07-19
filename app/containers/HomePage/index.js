@@ -12,12 +12,22 @@ import { compose } from 'redux';
 
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import makeSelectHomePage, { loading } from './selectors';
+import makeSelectHomePage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import AddUser from '../../components/AddUser';
-import {userDetails, title, userList, loaderEnable} from './selectors';
-import { onChangeHandler, saveUser, fetchUserDetails, deleteUser, enableLoading } from './actions';
+import {
+	userDetails, 
+	title, 
+	userList, 
+	loaderEnable
+} from './selectors';
+import { 
+	onChangeHandler, 
+	saveUser, 
+	fetchUserDetails, 
+	deleteUser, 
+	enableLoading
+} from './actions';
 
 export class HomePage extends React.Component{
 	constructor(props){

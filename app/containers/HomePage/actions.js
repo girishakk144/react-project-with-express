@@ -4,7 +4,14 @@
  *
  */
 
-import { ON_CHANGE_HANDLER, SAVE_USER, FETCH_USER_DETAILS, UPDATE_USER_DETAILS, DELETE_USER, CLEAR_USER_DETAILS, ENABLE_LOADING } from './constants';
+import { 
+	ON_CHANGE_HANDLER, 
+	SAVE_USER, 
+	FETCH_USER_DETAILS, 
+	UPDATE_USER_DETAILS, DELETE_USER, 
+	CLEAR_USER_DETAILS, 
+	ENABLE_LOADING
+ } from './constants';
 
 export function fetchUserDetails() {
 	return {
